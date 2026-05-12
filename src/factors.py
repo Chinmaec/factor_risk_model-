@@ -1,8 +1,10 @@
 import pandas as pd 
 import numpy as np 
 import os 
+from pathlib import Path
 
-file_path = os.getenv("PRICES_CSV_PATH", "factor_risk_model/data/prices.csv")
+DEFAULT_CSV = Path(__file__).resolve().parents[1] / "sample_data" / "sample_data.csv"
+file_path = Path(os.getenv("PRICES_CSV_PATH", str(DEFAULT_CSV)))
 prices = pd.read_csv(file_path)
 
 prices['Date'] = pd.to_datetime(prices['Date'])
@@ -18,14 +20,23 @@ def construct_momentum(prices,long_window=252,short_window=21):
     momentum = recent_price / past_price - 1
     return momentum
 
-# Market Cap(proxy)
+# Market Cap (Barra-style, when shares outstanding is available)
+def construct_size_with_shares(prices, shares_outstanding):
+    market_cap = prices * shares_outstanding
+    market_cap = market_cap.replace(0, np.nan)
+    return np.log(market_cap)
 
-# real barra uses Market cap = price * shares outstanding
-# but since we are using free data here it may not reliable give shares outstanding 
-def construct_size(prices):
+# Market Cap proxy (fallback when shares outstanding is unavailable/unreliable)
+def construct_size_proxy(prices: pd.DataFrame | pd.Series) -> pd.Series | float:
     size_proxy = prices.mean()
-    size = np.log(size_proxy)
-    return size 
+    size_proxy = size_proxy.replace(0, np.nan) if hasattr(size_proxy, "replace") else size_proxy
+    return np.log(size_proxy)
+
+
+def construct_size(prices, shares_outstanding=None, use_barra=False):
+    if use_barra and shares_outstanding is not None:
+        return construct_size_with_shares(prices, shares_outstanding)
+    return construct_size_proxy(prices)
 
 def construct_volatility(returns, window=60):
     volatility = returns.tail(window).std() * np.sqrt(252)
