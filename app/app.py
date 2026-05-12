@@ -161,12 +161,12 @@ with st.sidebar:
 
     construction = st.selectbox(
         "Select Portfolio Construction",
-        options=["Equal Weight", "Momentum Tilt", "Low Volatility Tilt", "Custom"],
+        options=["Equal Weight", "Momentum Tilt", "Low Volatility Tilt", "Custom Tickers"],
         index=0,
     )
 
     custom_tickers = []
-    if construction == "Custom":
+    if construction == "Custom Tickers":
         custom_tickers = st.multiselect(
             "Select stocks",
             options=tickers,
@@ -299,17 +299,7 @@ with right_col:
 
     heatmap_data = a["stock_exposures"].copy()
     heatmap_data.index.name = "Ticker"
-
-    # fig_heatmap = px.imshow(
-    #     heatmap_data,
-    #     aspect="auto",
-    #     color_continuous_scale="RdBu",
-    #     zmid=0,
-    #     labels={"x": "Factor", "y": "Stock", "color": "Exposure"},
-    #     text_auto=".2f",
-    # )
-    # fig_heatmap.update_layout(margin=dict(l=10, r=10, t=30, b=10))
-    # st.plotly_chart(fig_heatmap, use_container_width=True)
+ 
 
     max_abs = float(np.nanmax(np.abs(heatmap_data.values)))
     if not np.isfinite(max_abs) or max_abs == 0:
