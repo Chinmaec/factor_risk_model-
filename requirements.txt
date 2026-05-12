@@ -1,0 +1,5 @@
+# Install with: pip install -r requirements.txt
+# Python 3.9+ required
+
+pandas>=2.1.0
+numpy>=1.26.0
