@@ -290,29 +290,44 @@ with st.sidebar:
     min_date = full_prices.index.min().date()
     max_date = full_prices.index.max().date()
 
-    start_date = min_date
-    end_date = max_date
+    # start_date = min_date
+    # end_date = max_date
 
-    if not use_full_history:
-        st.markdown("**Date Range**")
-        # date_selection = st.date_input(
-        #     "Select start and end date",
-        #     value=(min_date, max_date),
-        #     min_value=min_date,
-        #     max_value=max_date,
-        # )
-        # if not isinstance(date_selection, (list, tuple)) or len(date_selection) != 2:
-        #     st.error("Select both a start and end date.")
-        #     st.stop()
-        # start_date, end_date = date_selection
-    start_date, end_date = st.slider(
-        "Drag to select start and end date",
-        min_value=min_date,
-        max_value=max_date,
-        value=(min_date, max_date),
-        format="YYYY-MM-DD",
-        key="date_range_slider",
-    )
+    # if not use_full_history:
+    #     st.markdown("**Date Range**")
+    # start_date, end_date = st.slider(
+    #     "Drag to select start and end date",
+    #     min_value=min_date,
+    #     max_value=max_date,
+    #     value=(min_date, max_date),
+    #     format="YYYY-MM-DD",
+    #     key="date_range_slider",
+    # )
+
+    if use_full_history:
+        start_date = min_date
+        end_date = max_date
+    else:
+        st.markdown("**Custom Date Range**")
+        col_start, col_end = st.columns(2)
+
+        with col_start:
+            start_date = st.date_input(
+                "Start date",
+                value=min_date,
+                min_value=min_date,
+                max_value=max_date,
+                key="start_date_input",
+            )
+
+        with col_end:
+            end_date = st.date_input(
+                "End date",
+                value=max_date,
+                min_value=min_date,
+                max_value=max_date,
+                key="end_date_input",
+            )
 
     if end_date < start_date:
         st.error("End date must be on or after start date.")

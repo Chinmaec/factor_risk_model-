@@ -52,6 +52,12 @@ def decompose_portfolio_risk(
 
     systematic_cov = B @ F @ B.T
     factor_var = w.T @ systematic_cov @ w
+
+    # x = B.T @ w
+    # factor_var = float(x.T @ F @ x)
+    # if factor_var < 0 and abs(factor_var) < 1e-12:
+    #     factor_var = 0.0
+    
     idio_var_port = w.T @ D @ w
     total_var = factor_var + idio_var_port
     total_vol = np.sqrt(total_var)
