@@ -1,9 +1,11 @@
-import pandas as pd 
-import numpy as np 
 import os 
 from pathlib import Path
 
-DEFAULT_CSV = Path(__file__).resolve().parents[1] / "sample_data" / "sample_data.csv"
+import pandas as pd 
+import numpy as np 
+
+DEFAULT_CSV = Path(__file__).resolve().parents[1] / "sample_data.csv"
+
 file_path = Path(os.getenv("PRICES_CSV_PATH", str(DEFAULT_CSV)))
 prices = pd.read_csv(file_path)
 
@@ -11,6 +13,53 @@ prices['Date'] = pd.to_datetime(prices['Date'])
 prices.set_index('Date', inplace=True)
 
 returns = np.log(prices / prices.shift(1)).dropna()
+
+def find_date_column(df: pd.DataFrame) -> str:
+    date_col = next((c for c in df.columns if str(c).strip().lower() == "date"), None)
+    if date_col is None:
+        date_col = next((c for c in df.columns if "date" in str(c).strip().lower()), None)
+    if date_col is None:
+        raise ValueError("No date column found.")
+    return date_col
+
+def prepare_wide_timeseries(df: pd.DataFrame, label: str = "data") -> pd.DataFrame:
+    if df is None or df.empty:
+        raise ValueError(f"{label} is empty.")
+
+    out = df.copy()
+    date_col = find_date_column(out)
+
+    out[date_col] = pd.to_datetime(out[date_col], errors="coerce")
+    out = out.dropna(subset=[date_col])
+    if out.empty:
+        raise ValueError(f"{label} has no valid dates after parsing.")
+
+    out = out.sort_values(date_col)
+    out = out.drop_duplicates(subset=[date_col], keep="last")
+    out = out.set_index(date_col)
+    out.index.name = "Date"
+
+    out = out.apply(pd.to_numeric, errors="coerce")
+    out = out.replace([np.inf, -np.inf], np.nan)
+    out = out.where(out > 0)
+    out = out.dropna(axis=1, how="all")
+    out = out.dropna(axis=0, how="all")
+
+    if out.empty:
+        raise ValueError(f"{label} has no usable numeric time series columns.")
+
+    return out
+
+def compute_returns(prices: pd.DataFrame) -> pd.DataFrame:
+    returns = np.log(prices / prices.shift(1))
+    returns = returns.replace([np.inf, -np.inf], np.nan).dropna(how="all")
+    returns = returns.dropna(axis=1, how="all")
+    return returns
+
+def _latest_valid_row(df: pd.DataFrame) -> pd.Series:
+    tmp = df.apply(pd.to_numeric, errors="coerce").replace([np.inf, -np.inf], np.nan)
+    tmp = tmp.where(tmp > 0)
+    return tmp.ffill().iloc[-1]
 
 def construct_momentum(prices,long_window=252,short_window=21):
     if len(prices) < long_window:
