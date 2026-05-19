@@ -1,3 +1,4 @@
+# factor_risk_model/streamlit_app.py
 import io
 import sys
 from pathlib import Path
@@ -7,7 +8,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
@@ -17,8 +18,8 @@ from src import risk as risk_engine
 
 st.set_page_config(page_title="Factor Risk Model", layout="wide")
 st.title("Factor Risk Model")
-st.caption("Barra/Axioma-style risk attribution from historical CSV only.")
-st.warning("No real-time data. Not investment advice.")
+st.caption("This app implements a Barra/Axioma-style factor risk model.")
+st.warning("This tool is not intended as investment advice, so we do not provide real-time data.")
 
 
 def build_price_template() -> pd.DataFrame:
@@ -31,6 +32,7 @@ def build_price_template() -> pd.DataFrame:
         }
     )
 
+
 def build_shares_template() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -41,11 +43,13 @@ def build_shares_template() -> pd.DataFrame:
         }
     )
 
+
 def read_uploaded_csv(uploaded_file, label: str) -> pd.DataFrame:
     if uploaded_file is None:
         raise ValueError(f"{label} file was not uploaded.")
     raw = pd.read_csv(uploaded_file)
     return factor_engine.prepare_wide_timeseries(raw, label=label)
+
 
 def build_model_inputs(
     prices: pd.DataFrame,
@@ -74,6 +78,7 @@ def build_model_inputs(
     factor_exposures = factor_exposures.loc[common_tickers]
     return prices, returns, factor_raw, factor_exposures
 
+
 def filter_inputs_by_date(
     prices: pd.DataFrame,
     shares: pd.DataFrame | None,
@@ -98,57 +103,6 @@ def filter_inputs_by_date(
 
     return build_model_inputs(prices_f, shares_outstanding=shares_f)
 
-
-@st.cache_data(show_spinner=False)
-def load_model_inputs():
-    prices = factor_engine.prices.copy()
-    returns = factor_engine.returns.copy()
-
-    factor_raw = factor_engine.construct_factors(returns=returns, prices=prices)
-    factor_exposures = factor_engine.standardize_factors(factor_raw)
-
-    factor_exposures = factor_exposures.replace([np.inf, -np.inf], np.nan).dropna(how="any")
-
-    common_tickers = [c for c in returns.columns if c in factor_exposures.index]
-    if not common_tickers:
-        raise ValueError("No overlapping tickers between returns and factor exposures.")
-
-    prices = prices[common_tickers]
-    returns = returns[common_tickers]
-    factor_raw = factor_raw.loc[common_tickers]
-    factor_exposures = factor_exposures.loc[common_tickers]
-
-    return prices, returns, factor_raw, factor_exposures
-
-def filter_inputs_by_date(prices: pd.DataFrame, start_date, end_date):
-    if end_date < start_date:
-        raise ValueError("End date must be on or after start date.")
-
-    mask = (prices.index.date >= start_date) & (prices.index.date <= end_date)
-    prices_f = prices.loc[mask].copy()
-
-    # Factors use 252-day lookbacks; enforce minimum history.
-    if len(prices_f) < 252:
-        raise ValueError(
-            f"Selected range has {len(prices_f)} rows. Need at least 252 rows for factor construction."
-        )
-
-    returns_f = np.log(prices_f / prices_f.shift(1)).dropna()
-
-    factor_raw_f = factor_engine.construct_factors(returns=returns_f, prices=prices_f)
-    factor_exposures_f = factor_engine.standardize_factors(factor_raw_f)
-    factor_exposures_f = factor_exposures_f.replace([np.inf, -np.inf], np.nan).dropna(how="any")
-
-    common_tickers = [c for c in returns_f.columns if c in factor_exposures_f.index]
-    if not common_tickers:
-        raise ValueError("No overlapping tickers after date filtering.")
-
-    prices_f = prices_f[common_tickers]
-    returns_f = returns_f[common_tickers]
-    factor_raw_f = factor_raw_f.loc[common_tickers]
-    factor_exposures_f = factor_exposures_f.loc[common_tickers]
-
-    return prices_f, returns_f, factor_raw_f, factor_exposures_f
 
 @st.cache_data(show_spinner=False)
 def load_risk_objects(returns: pd.DataFrame, factor_exposures: pd.DataFrame):
@@ -250,48 +204,10 @@ def make_download_payload(
 
     output.write("\nHoldings Factor Exposures\n")
     holdings_table.to_csv(output, index=False)
-
     return output.getvalue().encode("utf-8")
-
-
-# try:
-#     prices, returns, factor_raw, factor_exposures = load_model_inputs()
-#     factor_cov, idio_var = load_risk_objects(returns, factor_exposures)
-# except Exception as exc:
-#     st.error(f"Model load failed: {exc}")
-#     st.stop()
-
-# tickers = factor_exposures.index.tolist()
-
-# with st.sidebar:
-#     st.title("Factor Risk Model")
-#     st.caption("Barra/Axioma-Style Risk Attribution")
-
-#     construction = st.selectbox(
-#         "Select Portfolio Construction",
-#         options=["Equal Weight", "Momentum Tilt", "Low Volatility Tilt", "Custom Tickers"],
-#         index=0,
-#     )
-
-#     custom_tickers = []
-#     if construction == "Custom Tickers":
-#         custom_tickers = st.multiselect(
-#             "Select stocks",
-#             options=tickers,
-#             default=tickers[: min(10, len(tickers))],
-#         )
-
-#     run_clicked = st.button("Run Analysis", type="primary", use_container_width=True)
-
-try:
-    full_prices, full_returns, full_factor_raw, full_factor_exposures = load_model_inputs()
-except Exception as exc:
-    st.error(f"Model load failed: {exc}")
-    st.stop()
 
 with st.sidebar:
     st.title("Factor Risk Model")
-    st.caption("Barra/Axioma-Style Risk Attribution")
 
     st.subheader("Portfolio Construction")
     construction = st.selectbox(
@@ -301,7 +217,75 @@ with st.sidebar:
     )
 
     st.divider()
-    use_full_history = st.checkbox("Use full data range", value=True)
+
+    data_mode = st.radio(
+        "Price data source",
+        options=["Built-in sample CSV", "Upload prices CSV"],
+        index=0,
+    )
+
+    uploaded_prices = None
+    uploaded_shares = None
+    if data_mode == "Upload prices CSV":
+
+        with st.expander("Input format (read this before upload)", expanded=False):
+            st.write("Required: one date column + one column per ticker, wide format.")
+            st.write("Date can be named `Date`, `date`, or any column containing `date`.")
+            st.write("Optional shares file must use the same wide format and ticker names.")
+            st.write("If shares data exists, SIZE uses log(price * shares). Missing shares fall back to proxy.")
+            st.dataframe(build_price_template(), use_container_width=True)
+            st.download_button(
+                "Download Price Template CSV",
+                build_price_template().to_csv(index=False).encode("utf-8"),
+                file_name="price_template.csv",
+                mime="text/csv",
+            )
+            st.download_button(
+                "Download Shares Template CSV (Optional)",
+                build_shares_template().to_csv(index=False).encode("utf-8"),
+                file_name="shares_template.csv",
+                mime="text/csv",
+            )
+
+        uploaded_prices = st.file_uploader("Upload prices CSV", type=["csv"])
+        uploaded_shares = st.file_uploader("Upload shares outstanding CSV (optional)", type=["csv"])
+
+try:
+    if data_mode == "Built-in sample CSV":
+        full_prices = factor_engine.prices.copy()
+        if full_prices.empty:
+            raise ValueError(
+                "Built-in sample data was not found. Upload a prices CSV or set PRICES_CSV_PATH."
+            )
+        full_shares = None
+    else:
+        if uploaded_prices is None:
+            st.info("Upload a prices CSV in the sidebar to continue.")
+            st.stop()
+        full_prices = read_uploaded_csv(uploaded_prices, label="prices")
+
+        full_shares = None
+        if uploaded_shares is not None:
+            parsed_shares = read_uploaded_csv(uploaded_shares, label="shares outstanding")
+            overlap = [c for c in full_prices.columns if c in parsed_shares.columns]
+            if overlap:
+                full_shares = parsed_shares[overlap]
+                if len(overlap) < len(full_prices.columns):
+                    st.warning(
+                        "Shares data does not cover all tickers. SIZE falls back to proxy where shares are missing."
+                    )
+            else:
+                st.warning("No ticker overlap between prices and shares file. Ignoring shares file.")
+except Exception as exc:
+    st.error(f"Data load failed: {exc}")
+    st.stop()
+
+with st.sidebar:
+
+    st.divider()
+    st.subheader("Customizeable Features")
+
+    use_full_history = st.checkbox("Use full date range", value=True)
 
     min_date = full_prices.index.min().date()
     max_date = full_prices.index.max().date()
@@ -310,28 +294,43 @@ with st.sidebar:
     end_date = max_date
 
     if not use_full_history:
-        st.subheader("Date Range")
-        date_selection = st.date_input(
-            "Select start and end date",
-            value=(min_date, max_date),
-            min_value=min_date,
-            max_value=max_date,
-        )
-        if not isinstance(date_selection, (list, tuple)) or len(date_selection) != 2:
-            st.error("Please select both a start and end date.")
-            st.stop()
-        start_date, end_date = date_selection
+        st.markdown("**Date Range**")
+        # date_selection = st.date_input(
+        #     "Select start and end date",
+        #     value=(min_date, max_date),
+        #     min_value=min_date,
+        #     max_value=max_date,
+        # )
+        # if not isinstance(date_selection, (list, tuple)) or len(date_selection) != 2:
+        #     st.error("Select both a start and end date.")
+        #     st.stop()
+        # start_date, end_date = date_selection
+    start_date, end_date = st.slider(
+        "Drag to select start and end date",
+        min_value=min_date,
+        max_value=max_date,
+        value=(min_date, max_date),
+        format="YYYY-MM-DD",
+        key="date_range_slider",
+    )
+
+    if end_date < start_date:
+        st.error("End date must be on or after start date.")
+        st.stop()
+
+    st.caption(f"Selected: {start_date:%Y-%m-%d} to {end_date:%Y-%m-%d}")
 
 try:
     if use_full_history:
-        prices = full_prices
-        returns = full_returns
-        factor_raw = full_factor_raw
-        factor_exposures = full_factor_exposures
+        prices, returns, factor_raw, factor_exposures = build_model_inputs(
+            prices=full_prices,
+            shares_outstanding=full_shares,
+        )
         current_range = ("FULL",)
     else:
         prices, returns, factor_raw, factor_exposures = filter_inputs_by_date(
             prices=full_prices,
+            shares=full_shares,
             start_date=start_date,
             end_date=end_date,
         )
@@ -344,10 +343,17 @@ except Exception as exc:
 
 tickers = factor_exposures.index.tolist()
 
-# Clear prior analysis when data range changes
-if st.session_state.get("last_date_range") != current_range:
+data_signature = (
+    data_mode,
+    full_prices.index.min().isoformat(),
+    full_prices.index.max().isoformat(),
+    tuple(full_prices.columns.tolist()),
+    full_shares is not None,
+    current_range,
+)
+if st.session_state.get("data_signature") != data_signature:
     st.session_state.analysis = None
-    st.session_state.last_date_range = current_range
+    st.session_state.data_signature = data_signature
 
 with st.sidebar:
     custom_tickers = []
@@ -357,8 +363,16 @@ with st.sidebar:
             options=tickers,
             default=tickers[: min(10, len(tickers))],
         )
-
     run_clicked = st.button("Run Analysis", type="primary", use_container_width=True)
+
+    st.divider()
+    st.caption("Created with love, logic and a questionable amount of caffeine")
+    st.caption("Chinmae Chittybabu")
+    st.markdown(
+        "LinkedIn: [www.linkedin.com/in/chinmae-c-bba900274](https://www.linkedin.com/in/chinmae-c-bba900274)"
+    )
+    st.markdown("GitHub: [github.com/Chinmaec](https://github.com/Chinmaec)")
+
 
 if "analysis" not in st.session_state:
     st.session_state.analysis = None
@@ -389,11 +403,7 @@ if run_clicked:
         factor_contrib = pd.Series(risk_report["factor_contributions"], dtype=float).sort_values(
             ascending=False
         )
-
-        if total_var > 0:
-            factor_contrib_pct = 100.0 * factor_contrib / total_var
-        else:
-            factor_contrib_pct = factor_contrib * 0.0
+        factor_contrib_pct = 100.0 * factor_contrib / total_var if total_var > 0 else factor_contrib * 0.0
 
         selected_tickers = weights[weights > 0].index.tolist()
         stock_exposures = factor_exposures.loc[selected_tickers].copy()
@@ -405,13 +415,12 @@ if run_clicked:
             "factor_contrib_pct": factor_contrib_pct,
             "stock_exposures": stock_exposures,
         }
-
     except Exception as exc:
         st.session_state.analysis = None
         st.error(f"Analysis failed: {exc}")
 
 if st.session_state.analysis is None:
-    st.info("Choose portfolio construction in the sidebar and click Run Analysis.")
+    st.info("Choose settings in the sidebar and click Run Analysis.")
     st.stop()
 
 a = st.session_state.analysis
@@ -422,17 +431,10 @@ metric_cols[0].metric("Total Volatility", f"{100 * float(risk_report['total_vol'
 metric_cols[1].metric("Factor Risk", f"{100 * float(risk_report['factor_vol']):.2f}%")
 metric_cols[2].metric("Idiosyncratic Risk", f"{100 * float(risk_report['idio_vol']):.2f}%")
 
-st.info(
-    "Factor Risk is the portion of portfolio variance explained by common systematic factors, "
-    "equivalent to what Barra reports as systematic risk in portfolio analytics."
-)
-
 left_col, right_col = st.columns(2, gap="large")
 
 with left_col:
     st.subheader("Factor Contributions")
-    st.info("Contribution of each factor to total portfolio variance.")
-
     factor_contrib_df = a["factor_contrib_pct"].reset_index()
     factor_contrib_df.columns = ["Factor", "ContributionPct"]
 
@@ -454,8 +456,6 @@ with left_col:
     st.plotly_chart(fig_contrib, use_container_width=True)
 
     st.subheader("Portfolio Factor Exposures")
-    st.info("Net standardized exposure of the portfolio to each factor.")
-
     pexp_df = a["portfolio_exposures"].reset_index()
     pexp_df.columns = ["Factor", "Exposure"]
     max_abs = max(0.01, float(np.abs(pexp_df["Exposure"]).max()))
@@ -480,11 +480,8 @@ with left_col:
 
 with right_col:
     st.subheader("Factor Exposure Heatmap")
-    st.info("Stock-level standardized exposures for holdings in the selected portfolio.")
-
     heatmap_data = a["stock_exposures"].copy()
     heatmap_data.index.name = "Ticker"
- 
 
     max_abs = float(np.nanmax(np.abs(heatmap_data.values)))
     if not np.isfinite(max_abs) or max_abs == 0:
@@ -502,10 +499,6 @@ with right_col:
     st.plotly_chart(fig_heatmap, use_container_width=True)
 
     st.subheader("Risk Split")
-    st.info(
-        "Factor risk is systematic common-factor risk; idiosyncratic risk is stock-specific residual risk."
-    )
-
     factor_share = max(float(risk_report["factor_pct"]), 0.0)
     idio_share = max(float(risk_report["idio_pct"]), 0.0)
     share_total = factor_share + idio_share
@@ -533,8 +526,6 @@ with right_col:
     st.plotly_chart(fig_split, use_container_width=True)
 
 st.subheader("Full Factor Exposure Table")
-st.info("Holdings-level factor exposure matrix used in this run.")
-
 table = a["stock_exposures"].copy()
 table.insert(0, "Weight", a["weights"].loc[table.index].values)
 
@@ -547,7 +538,6 @@ styled_table = (
     .background_gradient(cmap="RdYlGn", subset=factor_cols, axis=0)
     .bar(subset=["Weight"], color="#BBD7F0")
 )
-
 st.dataframe(styled_table, use_container_width=True, height=420)
 
 download_payload = make_download_payload(
