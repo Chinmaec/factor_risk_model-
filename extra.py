@@ -414,20 +414,6 @@ with st.sidebar:
             options=tickers,
             default=tickers[: min(10, len(tickers))],
         )
-#     run_clicked = st.button("Run Analysis", type="primary", use_container_width=True)
-
-#     st.divider()
-#     st.caption("Created with love, logic and a questionable amount of caffeine")
-#     st.caption("Chinmae Chittybabu")
-#     st.markdown(
-#         "LinkedIn: [www.linkedin.com/in/chinmae-c-bba900274](https://www.linkedin.com/in/chinmae-c-bba900274)"
-#     )
-#     st.markdown("GitHub: [github.com/Chinmaec](https://github.com/Chinmaec)")
-
-
-# if "analysis" not in st.session_state:
-#     st.session_state.analysis = None
-
         
     run_clicked = st.button("Run Analysis", type="primary", use_container_width=True)
 
@@ -464,15 +450,6 @@ if "has_run_once" not in st.session_state:
 if run_clicked:
     st.session_state.has_run_once = True
 
-# if run_clicked:
-#     try:
-#         weights = build_weights(
-#             method=construction,
-#             tickers=tickers,
-#             factor_raw=factor_raw,
-#             factor_exposures=factor_exposures,
-#             custom_tickers=custom_tickers,
-#         )
 
 
 if st.session_state.has_run_once:
@@ -496,11 +473,6 @@ if st.session_state.has_run_once:
             idio_var=idio_var,
         )
 
-        # total_var = float(risk_report["total_vol"]) ** 2
-        # factor_contrib = pd.Series(risk_report["factor_contributions"], dtype=float).sort_values(
-        #     ascending=False
-        # )
-        # factor_contrib_pct = 100.0 * factor_contrib / total_var if total_var > 0 else factor_contrib * 0.0
 
         factor_var = float(risk_report.get("factor_var", 0.0))
         factor_contrib = pd.Series(risk_report["factor_contributions"], dtype=float).sort_values(
@@ -515,16 +487,6 @@ if st.session_state.has_run_once:
         selected_tickers = weights[weights > 0].index.tolist()
         stock_exposures = factor_exposures.loc[selected_tickers].copy()
 
-    #     st.session_state.analysis = {
-    #         "weights": weights,
-    #         "portfolio_exposures": portfolio_exposures,
-    #         "risk_report": risk_report,
-    #         "factor_contrib_pct": factor_contrib_pct,
-    #         "stock_exposures": stock_exposures,
-    #     }
-    # except Exception as exc:
-    #     st.session_state.analysis = None
-    #     st.error(f"Analysis failed: {exc}")
 
         st.session_state.analysis = {
             "weights": weights,
@@ -541,16 +503,6 @@ if st.session_state.analysis is None:
     if not st.session_state.has_run_once:
         st.info("Choose settings in the sidebar and click Run Analysis.")
     st.stop()
-
-# a = st.session_state.analysis
-# risk_report = a["risk_report"]
-
-# metric_cols = st.columns(3)
-# metric_cols[0].metric("Total Volatility", f"{100 * float(risk_report['total_vol']):.2f}%")
-# metric_cols[1].metric("Factor Risk", f"{100 * float(risk_report['factor_vol']):.2f}%")
-# metric_cols[2].metric("Idiosyncratic Risk", f"{100 * float(risk_report['idio_vol']):.2f}%")
-
-# left_col, right_col = st.columns(2, gap="large")
 
 a = st.session_state.analysis
 risk_report = a["risk_report"]
@@ -608,14 +560,6 @@ with left_col:
         color_continuous_scale="Blues",
         text=factor_contrib_df["ContributionPct"].map(lambda v: f"{v:.4f}%"),
     )
-    # fig_contrib.update_layout(
-    #     xaxis_title="",
-    #     yaxis_title="% of factor variance",
-    #     coloraxis_showscale=False,
-    #     margin=dict(l=10, r=10, t=30, b=10),
-    # )
-    # fig_contrib.update_traces(textposition="outside")
-    # st.plotly_chart(fig_contrib, use_container_width=True)
 
     fig_contrib.update_layout(
         xaxis_title="",
@@ -645,14 +589,6 @@ with left_col:
         range_color=[-max_abs, max_abs],
         text=pexp_df["Exposure"].map(lambda v: f"{v:.4f}"),
     )
-    # fig_pexp.update_layout(
-    #     xaxis_title="",
-    #     yaxis_title="Standardized Exposure",
-    #     coloraxis_showscale=False,
-    #     margin=dict(l=10, r=10, t=30, b=10),
-    # )
-    # fig_pexp.update_traces(textposition="outside")
-    # st.plotly_chart(fig_pexp, use_container_width=True)
 
     fig_pexp.update_layout(
         xaxis_title="",
@@ -685,8 +621,6 @@ with right_col:
         labels={"x": "Factor", "y": "Stock", "color": "Exposure"},
         text_auto=".2f",
     )
-    # fig_heatmap.update_layout(margin=dict(l=10, r=10, t=30, b=10))
-    # st.plotly_chart(fig_heatmap, use_container_width=True)
 
     fig_heatmap.update_layout(
         margin=dict(l=10, r=10, t=30, b=10),
@@ -719,46 +653,6 @@ with right_col:
         color="Risk Bucket",
         color_discrete_map={"Factor": "#1f77b4", "Idiosyncratic": "#ff7f0e"},
     )
-
-#     fig_split.update_traces(textinfo="label+percent")
-#     fig_split.update_layout(
-#         margin=dict(l=10, r=10, t=30, b=10),
-#         paper_bgcolor="rgba(0,0,0,0)",
-#         plot_bgcolor="rgba(0,0,0,0)",
-#         font=dict(color="#aaaaaa"),
-#     )
-#     st.plotly_chart(fig_split, use_container_width=True)
-
-# st.subheader("Full Factor Exposure Table")
-# table = a["stock_exposures"].copy()
-# table.insert(0, "Weight", a["weights"].loc[table.index].values)
-
-# factor_cols = list(a["stock_exposures"].columns)
-# fmt = {"Weight": "{:.2%}"}
-# fmt.update({col: "{:.4f}" for col in factor_cols})
-
-# styled_table = (
-#     table.style.format(fmt)
-#     .background_gradient(cmap="RdYlGn", subset=factor_cols, axis=0)
-#     .bar(subset=["Weight"], color="#BBD7F0")
-# )
-# st.dataframe(styled_table, use_container_width=True, height=420)
-
-# download_payload = make_download_payload(
-#     weights=a["weights"],
-#     stock_exposures=a["stock_exposures"],
-#     portfolio_exposures=a["portfolio_exposures"],
-#     factor_contrib_pct=a["factor_contrib_pct"],
-#     risk_report=risk_report,
-# )
-
-# st.download_button(
-#     "Download Risk Report (CSV)",
-#     data=download_payload,
-#     file_name="factor_risk_report.csv",
-#     mime="text/csv",
-# )
-
 
     fig_split.update_traces(textinfo="label+percent")
     fig_split.update_layout(
