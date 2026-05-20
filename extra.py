@@ -570,9 +570,23 @@ with left_col:
         color_continuous_scale="Blues",
         text=factor_contrib_df["ContributionPct"].map(lambda v: f"{v:.4f}%"),
     )
+    # fig_contrib.update_layout(
+    #     xaxis_title="",
+    #     yaxis_title="% of factor variance",
+    #     coloraxis_showscale=False,
+    #     margin=dict(l=10, r=10, t=30, b=10),
+    # )
+    # fig_contrib.update_traces(textposition="outside")
+    # st.plotly_chart(fig_contrib, use_container_width=True)
+
     fig_contrib.update_layout(
         xaxis_title="",
         yaxis_title="% of factor variance",
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#aaaaaa"),
         coloraxis_showscale=False,
         margin=dict(l=10, r=10, t=30, b=10),
     )
@@ -593,9 +607,23 @@ with left_col:
         range_color=[-max_abs, max_abs],
         text=pexp_df["Exposure"].map(lambda v: f"{v:.4f}"),
     )
+    # fig_pexp.update_layout(
+    #     xaxis_title="",
+    #     yaxis_title="Standardized Exposure",
+    #     coloraxis_showscale=False,
+    #     margin=dict(l=10, r=10, t=30, b=10),
+    # )
+    # fig_pexp.update_traces(textposition="outside")
+    # st.plotly_chart(fig_pexp, use_container_width=True)
+
     fig_pexp.update_layout(
         xaxis_title="",
         yaxis_title="Standardized Exposure",
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#aaaaaa"),
         coloraxis_showscale=False,
         margin=dict(l=10, r=10, t=30, b=10),
     )
@@ -619,7 +647,15 @@ with right_col:
         labels={"x": "Factor", "y": "Stock", "color": "Exposure"},
         text_auto=".2f",
     )
-    fig_heatmap.update_layout(margin=dict(l=10, r=10, t=30, b=10))
+    # fig_heatmap.update_layout(margin=dict(l=10, r=10, t=30, b=10))
+    # st.plotly_chart(fig_heatmap, use_container_width=True)
+
+    fig_heatmap.update_layout(
+        margin=dict(l=10, r=10, t=30, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#aaaaaa"),
+    )
     st.plotly_chart(fig_heatmap, use_container_width=True)
 
     st.subheader("Risk Split")
@@ -645,8 +681,17 @@ with right_col:
         color="Risk Bucket",
         color_discrete_map={"Factor": "#1f77b4", "Idiosyncratic": "#ff7f0e"},
     )
+    # fig_split.update_traces(textinfo="label+percent")
+    # fig_split.update_layout(margin=dict(l=10, r=10, t=30, b=10))
+    # st.plotly_chart(fig_split, use_container_width=True)
+
     fig_split.update_traces(textinfo="label+percent")
-    fig_split.update_layout(margin=dict(l=10, r=10, t=30, b=10))
+    fig_split.update_layout(
+        margin=dict(l=10, r=10, t=30, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#aaaaaa"),
+    )
     st.plotly_chart(fig_split, use_container_width=True)
 
 st.subheader("Full Factor Exposure Table")
