@@ -16,10 +16,18 @@ from src import factors as factor_engine
 from src import risk as risk_engine
 
 
+# st.set_page_config(page_title="Factor Risk Model", layout="wide")
+# st.title("Factor Risk Model")
+# st.caption("This app implements a Barra/Axioma-style factor risk model.")
+# st.warning("This tool is not intended as investment advice, so we do not provide real-time data.")
+
 st.set_page_config(page_title="Factor Risk Model", layout="wide")
 st.title("Factor Risk Model")
 st.caption("This app implements a Barra/Axioma-style factor risk model.")
-st.warning("This tool is not intended as investment advice, so we do not provide real-time data.")
+st.markdown(
+    '<div style="border-left:3px solid #185FA5; background:rgba(148,163,184,0.12); padding:8px 10px; margin-bottom:12px; font-size:12px; font-style:italic; color:inherit;">This tool is not intended as investment advice, so we do not provide real-time data.</div>',
+    unsafe_allow_html=True,
+)
 
 
 def build_price_template() -> pd.DataFrame:
