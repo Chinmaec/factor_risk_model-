@@ -238,7 +238,7 @@ with st.sidebar:
     st.subheader("Portfolio Construction")
     construction = st.selectbox(
         "Select Portfolio Construction",
-        options=["Equal Weight", "Momentum Tilt", "Low Volatility Tilt", "Custom Tickers"],
+        options=["Momentum Tilt", "Low Volatility Tilt", "Equal Weight", "Custom Tickers"],
         index=0,
     )
 
@@ -427,7 +427,7 @@ with st.sidebar:
         <div style="font-size:12px; line-height:1.35;">
             <div style="font-size:13px; font-weight:600;">Chinmae Chittybabu</div>
             <div style="margin-top:2px; font-size:12px; font-style:italic; color:#9CA3AF;">
-                Created with love, logic and a questionable amount of caffeine
+                Created with love and a questionable amount of caffeine
             </div>
             <div style="margin-top:8px; display:flex; gap:6px;">
                 <a href="https://www.linkedin.com/in/chinmae-c-bba900274" target="_blank" rel="noopener noreferrer"
@@ -448,7 +448,24 @@ with st.sidebar:
 if "analysis" not in st.session_state:
     st.session_state.analysis = None
 
+if "has_run_once" not in st.session_state:
+    st.session_state.has_run_once = False
+
 if run_clicked:
+    st.session_state.has_run_once = True
+
+# if run_clicked:
+#     try:
+#         weights = build_weights(
+#             method=construction,
+#             tickers=tickers,
+#             factor_raw=factor_raw,
+#             factor_exposures=factor_exposures,
+#             custom_tickers=custom_tickers,
+#         )
+
+
+if st.session_state.has_run_once:
     try:
         weights = build_weights(
             method=construction,
@@ -457,7 +474,6 @@ if run_clicked:
             factor_exposures=factor_exposures,
             custom_tickers=custom_tickers,
         )
-
         portfolio_exposures = risk_engine.compute_portfolio_exposures(
             weights=weights,
             factor_exposures=factor_exposures,
@@ -489,6 +505,17 @@ if run_clicked:
         selected_tickers = weights[weights > 0].index.tolist()
         stock_exposures = factor_exposures.loc[selected_tickers].copy()
 
+    #     st.session_state.analysis = {
+    #         "weights": weights,
+    #         "portfolio_exposures": portfolio_exposures,
+    #         "risk_report": risk_report,
+    #         "factor_contrib_pct": factor_contrib_pct,
+    #         "stock_exposures": stock_exposures,
+    #     }
+    # except Exception as exc:
+    #     st.session_state.analysis = None
+    #     st.error(f"Analysis failed: {exc}")
+
         st.session_state.analysis = {
             "weights": weights,
             "portfolio_exposures": portfolio_exposures,
@@ -501,7 +528,8 @@ if run_clicked:
         st.error(f"Analysis failed: {exc}")
 
 if st.session_state.analysis is None:
-    st.info("Choose settings in the sidebar and click Run Analysis.")
+    if not st.session_state.has_run_once:
+        st.info("Choose settings in the sidebar and click Run Analysis.")
     st.stop()
 
 # a = st.session_state.analysis
