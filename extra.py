@@ -681,9 +681,46 @@ with right_col:
         color="Risk Bucket",
         color_discrete_map={"Factor": "#1f77b4", "Idiosyncratic": "#ff7f0e"},
     )
-    # fig_split.update_traces(textinfo="label+percent")
-    # fig_split.update_layout(margin=dict(l=10, r=10, t=30, b=10))
-    # st.plotly_chart(fig_split, use_container_width=True)
+
+#     fig_split.update_traces(textinfo="label+percent")
+#     fig_split.update_layout(
+#         margin=dict(l=10, r=10, t=30, b=10),
+#         paper_bgcolor="rgba(0,0,0,0)",
+#         plot_bgcolor="rgba(0,0,0,0)",
+#         font=dict(color="#aaaaaa"),
+#     )
+#     st.plotly_chart(fig_split, use_container_width=True)
+
+# st.subheader("Full Factor Exposure Table")
+# table = a["stock_exposures"].copy()
+# table.insert(0, "Weight", a["weights"].loc[table.index].values)
+
+# factor_cols = list(a["stock_exposures"].columns)
+# fmt = {"Weight": "{:.2%}"}
+# fmt.update({col: "{:.4f}" for col in factor_cols})
+
+# styled_table = (
+#     table.style.format(fmt)
+#     .background_gradient(cmap="RdYlGn", subset=factor_cols, axis=0)
+#     .bar(subset=["Weight"], color="#BBD7F0")
+# )
+# st.dataframe(styled_table, use_container_width=True, height=420)
+
+# download_payload = make_download_payload(
+#     weights=a["weights"],
+#     stock_exposures=a["stock_exposures"],
+#     portfolio_exposures=a["portfolio_exposures"],
+#     factor_contrib_pct=a["factor_contrib_pct"],
+#     risk_report=risk_report,
+# )
+
+# st.download_button(
+#     "Download Risk Report (CSV)",
+#     data=download_payload,
+#     file_name="factor_risk_report.csv",
+#     mime="text/csv",
+# )
+
 
     fig_split.update_traces(textinfo="label+percent")
     fig_split.update_layout(
@@ -694,7 +731,25 @@ with right_col:
     )
     st.plotly_chart(fig_split, use_container_width=True)
 
-st.subheader("Full Factor Exposure Table")
+download_payload = make_download_payload(
+    weights=a["weights"],
+    stock_exposures=a["stock_exposures"],
+    portfolio_exposures=a["portfolio_exposures"],
+    factor_contrib_pct=a["factor_contrib_pct"],
+    risk_report=risk_report,
+)
+
+table_title_col, table_button_col = st.columns([4, 1])
+with table_title_col:
+    st.subheader("Full Factor Exposure Table")
+with table_button_col:
+    st.download_button(
+        "Download Risk Report (CSV)",
+        data=download_payload,
+        file_name="factor_risk_report.csv",
+        mime="text/csv",
+    )
+
 table = a["stock_exposures"].copy()
 table.insert(0, "Weight", a["weights"].loc[table.index].values)
 
@@ -704,22 +759,7 @@ fmt.update({col: "{:.4f}" for col in factor_cols})
 
 styled_table = (
     table.style.format(fmt)
-    .background_gradient(cmap="RdYlGn", subset=factor_cols, axis=0)
-    .bar(subset=["Weight"], color="#BBD7F0")
+    .background_gradient(cmap="RdBu", subset=factor_cols, axis=0)
+    .bar(subset=["Weight"], color="#185FA5")
 )
 st.dataframe(styled_table, use_container_width=True, height=420)
-
-download_payload = make_download_payload(
-    weights=a["weights"],
-    stock_exposures=a["stock_exposures"],
-    portfolio_exposures=a["portfolio_exposures"],
-    factor_contrib_pct=a["factor_contrib_pct"],
-    risk_report=risk_report,
-)
-
-st.download_button(
-    "Download Risk Report (CSV)",
-    data=download_payload,
-    file_name="factor_risk_report.csv",
-    mime="text/csv",
-)
