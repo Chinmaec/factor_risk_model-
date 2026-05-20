@@ -381,15 +381,45 @@ with st.sidebar:
             options=tickers,
             default=tickers[: min(10, len(tickers))],
         )
+#     run_clicked = st.button("Run Analysis", type="primary", use_container_width=True)
+
+#     st.divider()
+#     st.caption("Created with love, logic and a questionable amount of caffeine")
+#     st.caption("Chinmae Chittybabu")
+#     st.markdown(
+#         "LinkedIn: [www.linkedin.com/in/chinmae-c-bba900274](https://www.linkedin.com/in/chinmae-c-bba900274)"
+#     )
+#     st.markdown("GitHub: [github.com/Chinmaec](https://github.com/Chinmaec)")
+
+
+# if "analysis" not in st.session_state:
+#     st.session_state.analysis = None
+
+        
     run_clicked = st.button("Run Analysis", type="primary", use_container_width=True)
 
     st.divider()
-    st.caption("Created with love, logic and a questionable amount of caffeine")
-    st.caption("Chinmae Chittybabu")
     st.markdown(
-        "LinkedIn: [www.linkedin.com/in/chinmae-c-bba900274](https://www.linkedin.com/in/chinmae-c-bba900274)"
+        """
+        <div style="font-size:12px; line-height:1.35;">
+            <div style="font-size:13px; font-weight:600;">Chinmae Chittybabu</div>
+            <div style="margin-top:2px; font-size:12px; font-style:italic; color:#9CA3AF;">
+                Created with love, logic and a questionable amount of caffeine
+            </div>
+            <div style="margin-top:8px; display:flex; gap:6px;">
+                <a href="https://www.linkedin.com/in/chinmae-c-bba900274" target="_blank" rel="noopener noreferrer"
+                style="font-size:12px; text-decoration:none; padding:4px 10px; border-radius:999px; border:1px solid #BFD8F5; background:#EAF3FF; color:#0A66C2;">
+                    LinkedIn
+                </a>
+                <a href="https://github.com/Chinmaec" target="_blank" rel="noopener noreferrer"
+                style="font-size:12px; text-decoration:none; padding:4px 10px; border-radius:999px; border:1px solid #D1D5DB; background:#F3F4F6; color:#374151;">
+                    GitHub
+                </a>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    st.markdown("GitHub: [github.com/Chinmaec](https://github.com/Chinmaec)")
 
 
 if "analysis" not in st.session_state:
