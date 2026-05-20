@@ -15,12 +15,6 @@ if str(PROJECT_ROOT) not in sys.path:
 from src import factors as factor_engine
 from src import risk as risk_engine
 
-
-# st.set_page_config(page_title="Factor Risk Model", layout="wide")
-# st.title("Factor Risk Model")
-# st.caption("This app implements a Barra/Axioma-style factor risk model.")
-# st.warning("This tool is not intended as investment advice, so we do not provide real-time data.")
-
 # # change 2 
 # st.set_page_config(page_title="Factor Risk Model", layout="wide")
 # st.title("Factor Risk Model")
@@ -30,7 +24,7 @@ from src import risk as risk_engine
 #     unsafe_allow_html=True,
 # )
 
- 
+#  #latest change
 st.set_page_config(page_title="Factor Risk Model", layout="wide")
 st.markdown(
     '<div style="text-align:right; font-size:11px; color:rgba(148,163,184,0.9); margin-bottom:-8px;">by Chinmae Chittybabu</div>',
@@ -43,7 +37,36 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+#incase you want to experiment with colors 
+# st.set_page_config(page_title="Factor Risk Model", layout="wide")
+# st.markdown(
+#     """
+#     <style>
+#     /* Main background: uncomment one */
+#     /* [data-testid="stAppViewContainer"] { background: #0A0F1C; } */ /* A */
+#     /* [data-testid="stAppViewContainer"] { background: #0D1117; } */ /* B */
+#     /* [data-testid="stAppViewContainer"] { background: #1A1D27; } */ /* C */
+#     /* D = keep Streamlit default: leave all main options commented */
 
+#     /* Sidebar background: uncomment one */
+#     /* [data-testid="stSidebar"] { background: #131929; } */ /* 1 */
+#     /* [data-testid="stSidebar"] { background: #1E2030; } */ /* 2 */
+#     /* [data-testid="stSidebar"] { background: #0D1F2D; } */ /* 3 */
+#     /* 4 = keep Streamlit default: leave all sidebar options commented */
+
+#     [data-testid="stSidebar"] > div:first-child {
+#         background: inherit;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True,
+# )
+# st.markdown(
+#     '<div style="text-align:right; font-size:11px; color:rgba(148,163,184,0.9); margin-bottom:-8px;">by Chinmae Chittybabu</div>',
+#     unsafe_allow_html=True,
+# )
+# st.title("Factor Risk Model")
+# st.caption("This app implements a Barra/Axioma-style factor risk model.")
 
 def build_price_template() -> pd.DataFrame:
     return pd.DataFrame(
@@ -316,19 +339,6 @@ with st.sidebar:
     min_date = full_prices.index.min().date()
     max_date = full_prices.index.max().date()
 
-    # start_date = min_date
-    # end_date = max_date
-
-    # if not use_full_history:
-    #     st.markdown("**Date Range**")
-    # start_date, end_date = st.slider(
-    #     "Drag to select start and end date",
-    #     min_value=min_date,
-    #     max_value=max_date,
-    #     value=(min_date, max_date),
-    #     format="YYYY-MM-DD",
-    #     key="date_range_slider",
-    # )
 
     if use_full_history:
         start_date = min_date
@@ -782,12 +792,13 @@ table = a["stock_exposures"].copy()
 table.insert(0, "Weight", a["weights"].loc[table.index].values)
 
 factor_cols = list(a["stock_exposures"].columns)
+
 fmt = {"Weight": "{:.2%}"}
 fmt.update({col: "{:.4f}" for col in factor_cols})
 
 styled_table = (
     table.style.format(fmt)
-    .background_gradient(cmap="RdBu", subset=factor_cols, axis=0)
+    .background_gradient(cmap="RdYlGn", subset=factor_cols, axis=0)
     .bar(subset=["Weight"], color="#185FA5")
 )
 st.dataframe(styled_table, use_container_width=True, height=420)
