@@ -15,12 +15,58 @@ if str(PROJECT_ROOT) not in sys.path:
 from src import factors as factor_engine
 from src import risk as risk_engine
 
+# # change 2 
+# st.set_page_config(page_title="Factor Risk Model", layout="wide")
+# st.title("Factor Risk Model")
+# st.caption("This app implements a Barra/Axioma-style factor risk model.")
+# st.markdown(
+#     '<div style="border-left:3px solid #185FA5; background:rgba(148,163,184,0.12); padding:8px 10px; margin-bottom:12px; font-size:12px; font-style:italic; color:inherit;">This tool is not intended as investment advice, so we do not provide real-time data.</div>',
+#     unsafe_allow_html=True,
+# )
 
+#  #latest change
 st.set_page_config(page_title="Factor Risk Model", layout="wide")
+st.markdown(
+    '<div style="text-align:right; font-size:11px; color:rgba(148,163,184,0.9); margin-bottom:-8px;">by Chinmae Chittybabu</div>',
+    unsafe_allow_html=True,
+)
 st.title("Factor Risk Model")
 st.caption("This app implements a Barra/Axioma-style factor risk model.")
-st.warning("This tool is not intended as investment advice, so we do not provide real-time data.")
+st.markdown(
+    '<div style="border-left:3px solid #185FA5; background:rgba(148,163,184,0.12); padding:8px 10px; margin-bottom:12px; font-size:12px; font-style:italic; color:inherit;">This tool is not intended as investment advice, so we do not provide real-time data.</div>',
+    unsafe_allow_html=True,
+)
 
+#incase you want to experiment with colors 
+# st.set_page_config(page_title="Factor Risk Model", layout="wide")
+# st.markdown(
+#     """
+#     <style>
+#     /* Main background: uncomment one */
+#     /* [data-testid="stAppViewContainer"] { background: #0A0F1C; } */ /* A */
+#     /* [data-testid="stAppViewContainer"] { background: #0D1117; } */ /* B */
+#     /* [data-testid="stAppViewContainer"] { background: #1A1D27; } */ /* C */
+#     /* D = keep Streamlit default: leave all main options commented */
+
+#     /* Sidebar background: uncomment one */
+#     /* [data-testid="stSidebar"] { background: #131929; } */ /* 1 */
+#     /* [data-testid="stSidebar"] { background: #1E2030; } */ /* 2 */
+#     /* [data-testid="stSidebar"] { background: #0D1F2D; } */ /* 3 */
+#     /* 4 = keep Streamlit default: leave all sidebar options commented */
+
+#     [data-testid="stSidebar"] > div:first-child {
+#         background: inherit;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True,
+# )
+# st.markdown(
+#     '<div style="text-align:right; font-size:11px; color:rgba(148,163,184,0.9); margin-bottom:-8px;">by Chinmae Chittybabu</div>',
+#     unsafe_allow_html=True,
+# )
+# st.title("Factor Risk Model")
+# st.caption("This app implements a Barra/Axioma-style factor risk model.")
 
 def build_price_template() -> pd.DataFrame:
     return pd.DataFrame(
@@ -215,7 +261,7 @@ with st.sidebar:
     st.subheader("Portfolio Construction")
     construction = st.selectbox(
         "Select Portfolio Construction",
-        options=["Equal Weight", "Momentum Tilt", "Low Volatility Tilt", "Custom Tickers"],
+        options=["Momentum Tilt", "Low Volatility Tilt", "Equal Weight", "Custom Tickers"],
         index=0,
     )
 
@@ -293,19 +339,6 @@ with st.sidebar:
     min_date = full_prices.index.min().date()
     max_date = full_prices.index.max().date()
 
-    # start_date = min_date
-    # end_date = max_date
-
-    # if not use_full_history:
-    #     st.markdown("**Date Range**")
-    # start_date, end_date = st.slider(
-    #     "Drag to select start and end date",
-    #     min_value=min_date,
-    #     max_value=max_date,
-    #     value=(min_date, max_date),
-    #     format="YYYY-MM-DD",
-    #     key="date_range_slider",
-    # )
 
     if use_full_history:
         start_date = min_date
@@ -381,21 +414,68 @@ with st.sidebar:
             options=tickers,
             default=tickers[: min(10, len(tickers))],
         )
+#     run_clicked = st.button("Run Analysis", type="primary", use_container_width=True)
+
+#     st.divider()
+#     st.caption("Created with love, logic and a questionable amount of caffeine")
+#     st.caption("Chinmae Chittybabu")
+#     st.markdown(
+#         "LinkedIn: [www.linkedin.com/in/chinmae-c-bba900274](https://www.linkedin.com/in/chinmae-c-bba900274)"
+#     )
+#     st.markdown("GitHub: [github.com/Chinmaec](https://github.com/Chinmaec)")
+
+
+# if "analysis" not in st.session_state:
+#     st.session_state.analysis = None
+
+        
     run_clicked = st.button("Run Analysis", type="primary", use_container_width=True)
 
     st.divider()
-    st.caption("Created with love, logic and a questionable amount of caffeine")
-    st.caption("Chinmae Chittybabu")
     st.markdown(
-        "LinkedIn: [www.linkedin.com/in/chinmae-c-bba900274](https://www.linkedin.com/in/chinmae-c-bba900274)"
+        """
+        <div style="font-size:12px; line-height:1.35;">
+            <div style="font-size:13px; font-weight:600;">Chinmae Chittybabu</div>
+            <div style="margin-top:2px; font-size:12px; font-style:italic; color:#9CA3AF;">
+                Created with love and a questionable amount of caffeine
+            </div>
+            <div style="margin-top:8px; display:flex; gap:6px;">
+                <a href="https://www.linkedin.com/in/chinmae-c-bba900274" target="_blank" rel="noopener noreferrer"
+                style="font-size:12px; text-decoration:none; padding:4px 10px; border-radius:999px; border:1px solid #BFD8F5; background:#EAF3FF; color:#0A66C2;">
+                    LinkedIn
+                </a>
+                <a href="https://github.com/Chinmaec" target="_blank" rel="noopener noreferrer"
+                style="font-size:12px; text-decoration:none; padding:4px 10px; border-radius:999px; border:1px solid #D1D5DB; background:#F3F4F6; color:#374151;">
+                    GitHub
+                </a>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    st.markdown("GitHub: [github.com/Chinmaec](https://github.com/Chinmaec)")
 
 
 if "analysis" not in st.session_state:
     st.session_state.analysis = None
 
+if "has_run_once" not in st.session_state:
+    st.session_state.has_run_once = False
+
 if run_clicked:
+    st.session_state.has_run_once = True
+
+# if run_clicked:
+#     try:
+#         weights = build_weights(
+#             method=construction,
+#             tickers=tickers,
+#             factor_raw=factor_raw,
+#             factor_exposures=factor_exposures,
+#             custom_tickers=custom_tickers,
+#         )
+
+
+if st.session_state.has_run_once:
     try:
         weights = build_weights(
             method=construction,
@@ -404,7 +484,6 @@ if run_clicked:
             factor_exposures=factor_exposures,
             custom_tickers=custom_tickers,
         )
-
         portfolio_exposures = risk_engine.compute_portfolio_exposures(
             weights=weights,
             factor_exposures=factor_exposures,
@@ -436,6 +515,17 @@ if run_clicked:
         selected_tickers = weights[weights > 0].index.tolist()
         stock_exposures = factor_exposures.loc[selected_tickers].copy()
 
+    #     st.session_state.analysis = {
+    #         "weights": weights,
+    #         "portfolio_exposures": portfolio_exposures,
+    #         "risk_report": risk_report,
+    #         "factor_contrib_pct": factor_contrib_pct,
+    #         "stock_exposures": stock_exposures,
+    #     }
+    # except Exception as exc:
+    #     st.session_state.analysis = None
+    #     st.error(f"Analysis failed: {exc}")
+
         st.session_state.analysis = {
             "weights": weights,
             "portfolio_exposures": portfolio_exposures,
@@ -448,16 +538,60 @@ if run_clicked:
         st.error(f"Analysis failed: {exc}")
 
 if st.session_state.analysis is None:
-    st.info("Choose settings in the sidebar and click Run Analysis.")
+    if not st.session_state.has_run_once:
+        st.info("Choose settings in the sidebar and click Run Analysis.")
     st.stop()
+
+# a = st.session_state.analysis
+# risk_report = a["risk_report"]
+
+# metric_cols = st.columns(3)
+# metric_cols[0].metric("Total Volatility", f"{100 * float(risk_report['total_vol']):.2f}%")
+# metric_cols[1].metric("Factor Risk", f"{100 * float(risk_report['factor_vol']):.2f}%")
+# metric_cols[2].metric("Idiosyncratic Risk", f"{100 * float(risk_report['idio_vol']):.2f}%")
+
+# left_col, right_col = st.columns(2, gap="large")
 
 a = st.session_state.analysis
 risk_report = a["risk_report"]
 
 metric_cols = st.columns(3)
-metric_cols[0].metric("Total Volatility", f"{100 * float(risk_report['total_vol']):.2f}%")
-metric_cols[1].metric("Factor Risk", f"{100 * float(risk_report['factor_vol']):.2f}%")
-metric_cols[2].metric("Idiosyncratic Risk", f"{100 * float(risk_report['idio_vol']):.2f}%")
+
+with metric_cols[0]:
+    st.markdown(
+        f"""
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-left:4px solid #185FA5; border-radius:8px; padding:10px 12px;">
+            <div style="font-size:12px; color:#6B7280;">Total Volatility</div>
+            <div style="font-size:26px; font-weight:700; line-height:1.2; color:#185FA5;">{100 * float(risk_report['total_vol']):.2f}%</div>
+            <div style="font-size:11px; color:#6B7280;">annualised</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with metric_cols[1]:
+    st.markdown(
+        f"""
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-left:4px solid #0F6E56; border-radius:8px; padding:10px 12px;">
+            <div style="font-size:12px; color:#6B7280;">Factor Risk</div>
+            <div style="font-size:26px; font-weight:700; line-height:1.2; color:#0F6E56;">{100 * float(risk_report['factor_vol']):.2f}%</div>
+            <div style="font-size:11px; color:#6B7280;">{(100.0 * (float(risk_report['factor_vol']) ** 2) / (float(risk_report['total_vol']) ** 2)) if float(risk_report['total_vol']) > 1e-16 else 0.0:.1f}% of total variance</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with metric_cols[2]:
+    st.markdown(
+        f"""
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-left:4px solid #993C1D; border-radius:8px; padding:10px 12px;">
+            <div style="font-size:12px; color:#6B7280;">Idiosyncratic Risk</div>
+            <div style="font-size:26px; font-weight:700; line-height:1.2; color:#993C1D;">{100 * float(risk_report['idio_vol']):.2f}%</div>
+            <div style="font-size:11px; color:#6B7280;">{(100.0 * (float(risk_report['idio_vol']) ** 2) / (float(risk_report['total_vol']) ** 2)) if float(risk_report['total_vol']) > 1e-16 else 0.0:.1f}% of total variance</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 left_col, right_col = st.columns(2, gap="large")
 
@@ -474,9 +608,23 @@ with left_col:
         color_continuous_scale="Blues",
         text=factor_contrib_df["ContributionPct"].map(lambda v: f"{v:.4f}%"),
     )
+    # fig_contrib.update_layout(
+    #     xaxis_title="",
+    #     yaxis_title="% of factor variance",
+    #     coloraxis_showscale=False,
+    #     margin=dict(l=10, r=10, t=30, b=10),
+    # )
+    # fig_contrib.update_traces(textposition="outside")
+    # st.plotly_chart(fig_contrib, use_container_width=True)
+
     fig_contrib.update_layout(
         xaxis_title="",
         yaxis_title="% of factor variance",
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#aaaaaa"),
         coloraxis_showscale=False,
         margin=dict(l=10, r=10, t=30, b=10),
     )
@@ -497,9 +645,23 @@ with left_col:
         range_color=[-max_abs, max_abs],
         text=pexp_df["Exposure"].map(lambda v: f"{v:.4f}"),
     )
+    # fig_pexp.update_layout(
+    #     xaxis_title="",
+    #     yaxis_title="Standardized Exposure",
+    #     coloraxis_showscale=False,
+    #     margin=dict(l=10, r=10, t=30, b=10),
+    # )
+    # fig_pexp.update_traces(textposition="outside")
+    # st.plotly_chart(fig_pexp, use_container_width=True)
+
     fig_pexp.update_layout(
         xaxis_title="",
         yaxis_title="Standardized Exposure",
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#aaaaaa"),
         coloraxis_showscale=False,
         margin=dict(l=10, r=10, t=30, b=10),
     )
@@ -523,7 +685,15 @@ with right_col:
         labels={"x": "Factor", "y": "Stock", "color": "Exposure"},
         text_auto=".2f",
     )
-    fig_heatmap.update_layout(margin=dict(l=10, r=10, t=30, b=10))
+    # fig_heatmap.update_layout(margin=dict(l=10, r=10, t=30, b=10))
+    # st.plotly_chart(fig_heatmap, use_container_width=True)
+
+    fig_heatmap.update_layout(
+        margin=dict(l=10, r=10, t=30, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#aaaaaa"),
+    )
     st.plotly_chart(fig_heatmap, use_container_width=True)
 
     st.subheader("Risk Split")
@@ -549,24 +719,55 @@ with right_col:
         color="Risk Bucket",
         color_discrete_map={"Factor": "#1f77b4", "Idiosyncratic": "#ff7f0e"},
     )
+
+#     fig_split.update_traces(textinfo="label+percent")
+#     fig_split.update_layout(
+#         margin=dict(l=10, r=10, t=30, b=10),
+#         paper_bgcolor="rgba(0,0,0,0)",
+#         plot_bgcolor="rgba(0,0,0,0)",
+#         font=dict(color="#aaaaaa"),
+#     )
+#     st.plotly_chart(fig_split, use_container_width=True)
+
+# st.subheader("Full Factor Exposure Table")
+# table = a["stock_exposures"].copy()
+# table.insert(0, "Weight", a["weights"].loc[table.index].values)
+
+# factor_cols = list(a["stock_exposures"].columns)
+# fmt = {"Weight": "{:.2%}"}
+# fmt.update({col: "{:.4f}" for col in factor_cols})
+
+# styled_table = (
+#     table.style.format(fmt)
+#     .background_gradient(cmap="RdYlGn", subset=factor_cols, axis=0)
+#     .bar(subset=["Weight"], color="#BBD7F0")
+# )
+# st.dataframe(styled_table, use_container_width=True, height=420)
+
+# download_payload = make_download_payload(
+#     weights=a["weights"],
+#     stock_exposures=a["stock_exposures"],
+#     portfolio_exposures=a["portfolio_exposures"],
+#     factor_contrib_pct=a["factor_contrib_pct"],
+#     risk_report=risk_report,
+# )
+
+# st.download_button(
+#     "Download Risk Report (CSV)",
+#     data=download_payload,
+#     file_name="factor_risk_report.csv",
+#     mime="text/csv",
+# )
+
+
     fig_split.update_traces(textinfo="label+percent")
-    fig_split.update_layout(margin=dict(l=10, r=10, t=30, b=10))
+    fig_split.update_layout(
+        margin=dict(l=10, r=10, t=30, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#aaaaaa"),
+    )
     st.plotly_chart(fig_split, use_container_width=True)
-
-st.subheader("Full Factor Exposure Table")
-table = a["stock_exposures"].copy()
-table.insert(0, "Weight", a["weights"].loc[table.index].values)
-
-factor_cols = list(a["stock_exposures"].columns)
-fmt = {"Weight": "{:.2%}"}
-fmt.update({col: "{:.4f}" for col in factor_cols})
-
-styled_table = (
-    table.style.format(fmt)
-    .background_gradient(cmap="RdYlGn", subset=factor_cols, axis=0)
-    .bar(subset=["Weight"], color="#BBD7F0")
-)
-st.dataframe(styled_table, use_container_width=True, height=420)
 
 download_payload = make_download_payload(
     weights=a["weights"],
@@ -576,9 +777,28 @@ download_payload = make_download_payload(
     risk_report=risk_report,
 )
 
-st.download_button(
-    "Download Risk Report (CSV)",
-    data=download_payload,
-    file_name="factor_risk_report.csv",
-    mime="text/csv",
+table_title_col, table_button_col = st.columns([4, 1])
+with table_title_col:
+    st.subheader("Full Factor Exposure Table")
+with table_button_col:
+    st.download_button(
+        "Download Risk Report (CSV)",
+        data=download_payload,
+        file_name="factor_risk_report.csv",
+        mime="text/csv",
+    )
+
+table = a["stock_exposures"].copy()
+table.insert(0, "Weight", a["weights"].loc[table.index].values)
+
+factor_cols = list(a["stock_exposures"].columns)
+
+fmt = {"Weight": "{:.2%}"}
+fmt.update({col: "{:.4f}" for col in factor_cols})
+
+styled_table = (
+    table.style.format(fmt)
+    .background_gradient(cmap="RdYlGn", subset=factor_cols, axis=0)
+    .bar(subset=["Weight"], color="#185FA5")
 )
+st.dataframe(styled_table, use_container_width=True, height=420)
