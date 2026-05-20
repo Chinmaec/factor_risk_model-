@@ -185,8 +185,11 @@ def make_download_payload(
     exposure_table = portfolio_exposures.rename("Exposure").reset_index()
     exposure_table.columns = ["Factor", "Exposure"]
 
-    contrib_table = factor_contrib_pct.rename("Contribution (% Total Variance)").reset_index()
-    contrib_table.columns = ["Factor", "Contribution (% Total Variance)"]
+    # contrib_table = factor_contrib_pct.rename("Contribution (% Total Variance)").reset_index()
+    # contrib_table.columns = ["Factor", "Contribution (% Total Variance)"]
+
+    contrib_table = factor_contrib_pct.rename("Contribution (% Factor Variance)").reset_index()
+    contrib_table.columns = ["Factor", "Contribution (% Factor Variance)"]
 
     holdings_table = stock_exposures.copy()
     holdings_table.insert(0, "Weight", weights.loc[stock_exposures.index].values)
@@ -414,11 +417,21 @@ if run_clicked:
             idio_var=idio_var,
         )
 
-        total_var = float(risk_report["total_vol"]) ** 2
+        # total_var = float(risk_report["total_vol"]) ** 2
+        # factor_contrib = pd.Series(risk_report["factor_contributions"], dtype=float).sort_values(
+        #     ascending=False
+        # )
+        # factor_contrib_pct = 100.0 * factor_contrib / total_var if total_var > 0 else factor_contrib * 0.0
+
+        factor_var = float(risk_report.get("factor_var", 0.0))
         factor_contrib = pd.Series(risk_report["factor_contributions"], dtype=float).sort_values(
             ascending=False
         )
-        factor_contrib_pct = 100.0 * factor_contrib / total_var if total_var > 0 else factor_contrib * 0.0
+        factor_contrib_pct = (
+            100.0 * factor_contrib / factor_var
+            if factor_var > 1e-16
+            else factor_contrib * 0.0
+        )
 
         selected_tickers = weights[weights > 0].index.tolist()
         stock_exposures = factor_exposures.loc[selected_tickers].copy()
@@ -463,7 +476,7 @@ with left_col:
     )
     fig_contrib.update_layout(
         xaxis_title="",
-        yaxis_title="% of total variance",
+        yaxis_title="% of factor variance",
         coloraxis_showscale=False,
         margin=dict(l=10, r=10, t=30, b=10),
     )
