@@ -135,10 +135,65 @@ def decompose_portfolio_risk(
         "factor_contributions": factor_contributions,
     }
 
+# def equal_weight_portfolio(tickers):
+#     n = len(tickers)
+#     weights = np.repeat(1 / n, n)
+#     return pd.Series(weights,index=tickers)
+
 def equal_weight_portfolio(tickers):
     n = len(tickers)
     weights = np.repeat(1 / n, n)
-    return pd.Series(weights,index=tickers)
+    return pd.Series(weights, index=tickers)
 
 
+def compute_stock_mrc(
+    weights: pd.Series,
+    factor_exposures: pd.DataFrame,
+    factor_cov: pd.DataFrame,
+    idio_var: pd.Series,
+) -> pd.Series:
+    """
+    Euler decomposition of portfolio volatility by stock.
+
+    MRC_i  =  w_i * (Σ @ w)_i / σ_p
+    where Σ = B F B' + D  (full N×N covariance matrix).
+
+    By Euler's theorem the MRC values sum exactly to σ_p (total portfolio vol).
+    Dividing by σ_p and multiplying by 100 gives each stock's % contribution
+    to total portfolio volatility.
+    """
+    # Cast and align
+    w = (
+        weights
+        .reindex(factor_exposures.index)
+        .astype(float)
+        .fillna(0.0)
+        .values
+    )                                                       # (N,)
+    B = factor_exposures.values.astype(float)              # (N, K)
+    F = factor_cov.values.astype(float)                    # (K, K)
+    F = 0.5 * (F + F.T)                                    # symmetrise numerically
+
+    idio = (
+        idio_var
+        .reindex(factor_exposures.index)
+        .astype(float)
+        .fillna(0.0)
+    )
+    D = np.diag(idio.values)                               # (N, N) diagonal
+
+    # Full covariance matrix (systematic + idiosyncratic)
+    sigma_matrix = B @ F @ B.T + D                         # (N, N)
+
+    # Marginal contribution vector
+    sigma_w = sigma_matrix @ w                             # (N,) = Σ @ w
+    total_var = float(w.T @ sigma_w)                       # scalar σ²_p
+    total_vol = float(np.sqrt(max(total_var, 0.0)))        # scalar σ_p
+
+    if total_vol < 1e-16:
+        return pd.Series(0.0, index=factor_exposures.index)
+
+    # MRC in vol units: w_i * (Σw)_i / σ_p  -> sum = σ_p
+    mrc = w * sigma_w / total_vol
+    return pd.Series(mrc, index=factor_exposures.index)
 
