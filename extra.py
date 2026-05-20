@@ -481,13 +481,56 @@ if st.session_state.analysis is None:
     st.info("Choose settings in the sidebar and click Run Analysis.")
     st.stop()
 
+# a = st.session_state.analysis
+# risk_report = a["risk_report"]
+
+# metric_cols = st.columns(3)
+# metric_cols[0].metric("Total Volatility", f"{100 * float(risk_report['total_vol']):.2f}%")
+# metric_cols[1].metric("Factor Risk", f"{100 * float(risk_report['factor_vol']):.2f}%")
+# metric_cols[2].metric("Idiosyncratic Risk", f"{100 * float(risk_report['idio_vol']):.2f}%")
+
+# left_col, right_col = st.columns(2, gap="large")
+
 a = st.session_state.analysis
 risk_report = a["risk_report"]
 
 metric_cols = st.columns(3)
-metric_cols[0].metric("Total Volatility", f"{100 * float(risk_report['total_vol']):.2f}%")
-metric_cols[1].metric("Factor Risk", f"{100 * float(risk_report['factor_vol']):.2f}%")
-metric_cols[2].metric("Idiosyncratic Risk", f"{100 * float(risk_report['idio_vol']):.2f}%")
+
+with metric_cols[0]:
+    st.markdown(
+        f"""
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-left:4px solid #185FA5; border-radius:8px; padding:10px 12px;">
+            <div style="font-size:12px; color:#6B7280;">Total Volatility</div>
+            <div style="font-size:26px; font-weight:700; line-height:1.2; color:#185FA5;">{100 * float(risk_report['total_vol']):.2f}%</div>
+            <div style="font-size:11px; color:#6B7280;">annualised</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with metric_cols[1]:
+    st.markdown(
+        f"""
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-left:4px solid #0F6E56; border-radius:8px; padding:10px 12px;">
+            <div style="font-size:12px; color:#6B7280;">Factor Risk</div>
+            <div style="font-size:26px; font-weight:700; line-height:1.2; color:#0F6E56;">{100 * float(risk_report['factor_vol']):.2f}%</div>
+            <div style="font-size:11px; color:#6B7280;">{(100.0 * (float(risk_report['factor_vol']) ** 2) / (float(risk_report['total_vol']) ** 2)) if float(risk_report['total_vol']) > 1e-16 else 0.0:.1f}% of total variance</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with metric_cols[2]:
+    st.markdown(
+        f"""
+        <div style="background:#FFFFFF; border:1px solid #E5E7EB; border-left:4px solid #993C1D; border-radius:8px; padding:10px 12px;">
+            <div style="font-size:12px; color:#6B7280;">Idiosyncratic Risk</div>
+            <div style="font-size:26px; font-weight:700; line-height:1.2; color:#993C1D;">{100 * float(risk_report['idio_vol']):.2f}%</div>
+            <div style="font-size:11px; color:#6B7280;">{(100.0 * (float(risk_report['idio_vol']) ** 2) / (float(risk_report['total_vol']) ** 2)) if float(risk_report['total_vol']) > 1e-16 else 0.0:.1f}% of total variance</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 left_col, right_col = st.columns(2, gap="large")
 
