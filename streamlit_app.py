@@ -423,7 +423,7 @@ with st.sidebar:
         <div style="font-size:12px; line-height:1.35;">
             <div style="font-size:13px; font-weight:600;">Chinmae Chittybabu</div>
             <div style="margin-top:2px; font-size:12px; font-style:italic; color:#9CA3AF;">
-                Created with love and a questionable amount of caffeine
+                Created with love, logic and a little too much caffeine
             </div>
             <div style="margin-top:8px; display:flex; gap:6px;">
                 <a href="https://www.linkedin.com/in/chinmae-c-bba900274" target="_blank" rel="noopener noreferrer"
